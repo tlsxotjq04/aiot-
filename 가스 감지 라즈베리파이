@@ -1,0 +1,22 @@
+from gpiozero import DigitalInputDevice
+from gpiozero import OutputDevice
+import time
+
+bz = OutputDevice(18)
+gas = DigitalInputDevice(17)
+
+try:
+    while True:
+       if gas.value == 0:
+           print("가스 감지됨")
+           bz.on()
+       else:
+           print("정상")
+           bz.off()
+
+       time.sleep(0,2)
+
+except keyboardInterrupt:
+    pass
+
+bz.off()
