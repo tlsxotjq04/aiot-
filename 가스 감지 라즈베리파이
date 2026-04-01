@@ -1,16 +1,16 @@
-from gpiozero import DigitalInputDevice
-from gpiozero import OutputDevice
-import time
+from gpiozero import DigitalInputDevice    #'gpiozero'라이브러리에서 'DigitalInputDevice' 클래스를 가져옴
+from gpiozero import OutputDevice    #'gpiozero'라이브러리에서 'OutputDevice' 클래스를 가져옴
+import time   #'time' 라이브러리를 가져옴
 
-bz = OutputDevice(18)
-gas = DigitalInputDevice(17)
+bz = OutputDevice(18)   #GPIO 18번 핀을 부저 제어 핀으로 초기화
+gas = DigitalInputDevice(17)   #GPIO 17번 핀을 MQ2 센서 입력 핀으로 초기화
 
-try:
+try:   #무한 루프를 시작
     while True:
-       if gas.value == 0:
-           print("가스 감지됨")
-           bz.on()
-       else:
+       if gas.value == 0:    #DO 핀이 LOW(0)이면 가스가 감지된 것으로 판단
+           print("가스 감지됨")    #터미널에 '가스 감지됨' 출력
+           bz.on()    #부저 on
+       else:    #
            print("정상")
            bz.off()
 
