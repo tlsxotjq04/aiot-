@@ -10,13 +10,13 @@ try:   #무한 루프를 시작
        if gas.value == 0:    #DO 핀이 LOW(0)이면 가스가 감지된 것으로 판단
            print("가스 감지됨")    #터미널에 '가스 감지됨' 출력
            bz.on()    #부저 on
-       else:    #
-           print("정상")
-           bz.off()
+       else:    #DO 핀이 HIGH(1)이면 정상 상태로 판단
+           print("정상") #터미널에 정상이라고 출력
+           bz.off() #부저 off
 
-       time.sleep(0,2)
+       time.sleep(0.2)  #0.2초마다 센서 값을 반복 확인
 
-except keyboardInterrupt:
+except keyboardInterrupt: #키보드 인터럽트 발생 시 루프 종료
     pass
 
-bz.off()
+bz.off() #프로그램 종료 시 부저를 반드시 off 처리
