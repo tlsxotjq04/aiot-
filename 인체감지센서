@@ -1,29 +1,29 @@
-from gpiozro import MotionSensor
-impoort timr
-from Picamera2 import Picamera2
-import datetime
+from gpiozro import MotionSensor    #gpiozero 라이브러리에서 MotionSesor클래스를 가져옴
+impoort timr                        #time 라이브러리를 가져옴
+from Picamera2 import Picamera2       #picamera2라이브러리에서 picamera2클래스를 가져옴
+import datetime                     #날짜/시간 처리를 위한 datetime라이브러리를 가져옴
 
-pirPin = MotionSensor(16)
+pirPin = MotionSensor(16)           #GPIO 16번 핀을 PIR 모션 센서 입력 핀으로 초기화
 
-picam2 = Picamera2()
-camera_config = picam2.create_preview_configuration()
-picam2.configure(camera_config)
-picam2.start()
+picam2 = Picamera2()               # Picamera2 객체생성
+camera_config = picam2.create_preview_configuration()      # 카메라미리보기설정구성
+picam2.configure(camera_config)                # 카메라에설정적용
+picam2.start()                 # 카메라시작
 
-try:
+try:                
 
-    while True:
+    while True:            # 무한루프시작    
         try:
-            sensorValue = pirPin.value
-            if sensorValue ==1:
-                now = datetime.datetime.now()
-                print(now)
-                fileName = now.strftime('%y-%m-%d %h:%m:%s')
-                picam2.capture_file(fileName + '.jpg')
-                time.sleep(0.5)
+            sensorValue = pirPin.value                 # PIR 센서의현재값을읽어변수에저장
+            if sensorValue ==1:                 # 센서값이1이면움직임이감지된것으로판단
+                now = datetime.datetime.now()                 # 현재날짜와시간을가져옴
+                print(now)                 # 감지된시각을터미널에출력
+                fileName = now.strftime('%y-%m-%d %h:%m:%s')                # 시각을파일명형식문자열로변환
+                picam2.capture_file(fileName + '.jpg')                 # 해당파일명으로jpg 사진촬영및저장
+                time.sleep(0.5)                 # 0.5초대기(연속촬영방지)
 
-        except:
+        except:                 # 촬영중오류발생시무시하고계속진행
             pass
 
-except keyboardinterrupt:
+except keyboardinterrupt:                 # 키보드인터럽트(Ctrl+C) 발생시루프종료
     pass
