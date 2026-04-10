@@ -1,0 +1,13 @@
+from gpiozro import MotionSensor
+impoort timr
+from Picamera2 import Picamera2
+import datetime
+
+pirPin = MotionSensor(16)
+
+picam2 = Picamera2()
+camera_config = picam2.create_preview_configuration()
+picam2.configure(camera_config)
+picam2.start()
+
+try:
