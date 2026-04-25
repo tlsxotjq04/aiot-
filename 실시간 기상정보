@@ -1,0 +1,25 @@
+importurllib.request                                # 웹요청보내는라이브러리
+importjson                                          # JSON 데이터처리라이브러리
+importtkinter                                       # GUI 창만드는라이브러리
+importtkinter.font                                  # tkinter 폰트설정라이브러리
+API_KEY="Enter your API key here"                  # OpenWeatherMap에서발급받은API키입력필요
+
+def tick1Min():
+    url =f"https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid={API_KEY}&units=metric"    # 서울날씨요청URL
+    withurllib.request.urlopen(url) asr:           # API에요청보내기
+        data=json.loads(r.read())                  # 응답을JSON 형태로변환
+    temp= data["main"]["temp"]                      # 온도꺼내기
+    humi= data[＂main＂][＂humidity＂] # 습도꺼내기
+    label.config(text=f"{temp:.1f}C {humi}%")      # 라벨텍스트업데이트
+    window.after(60000, tick1Min)                    # 1분(60000ms)후함수재실행
+
+window=tkinter.Tk()                                # 창생성
+window.title("TEMP HUMI DISPLAY")                    # 창제목설정
+window.geometry("400x100")                           # 창크기설정(가로x 세로)
+window.resizable(False, False)                       # 창크기조절불가설정(True로입력시조절가능)
+font= tkinter.font.Font(size=30)                    # 폰트크기30 설정
+label= tkinter.Label(window, text="", font=font)    # 텍스트라벨생성
+label.pack()                                         # 라벨을창에배치
+
+tick1Min() # 시작시날씨첫호출
+window.mainloop()                                    # 창유지(이벤트루프)
