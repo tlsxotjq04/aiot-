@@ -1,0 +1,52 @@
+import urllib.request # 웹요청라이브러리/ Web request library
+import json # JSON 데이터처리라이브러리/ JSON data processing library
+import datetime # 날짜/시간라이브러리/ Date and time library
+import asyncio # 비동기실행라이브러리/ Asynchronous execution library
+from telegram import Bot # 텔레그램봇객체/ Telegram bot object
+
+telegram_id = 'Enter your chat ID here' # 내텔레그램chat_id / My Telegram chat ID
+my_token = 'Enter your bot token here' # BotFather에서발급받은토큰/ Bot token from BotFather
+api_key = 'Enter your API key here' # OpenWeatherMap API 키/ OpenWeatherMap API key
+
+bot = Bot(token=my_token) # 토큰으로봇객체생성/ Create bot object with token
+
+ALERT_HOURS = [7, 10, 13, 16, 19, 22] # 3시간간격정각알림시간목록/ Hourly alerts every 3 hours
+ALERT_TIMES = ["08:30", "14:45"] # 추가지정시간알림목록/ Custom time alerts (add your times here)
+
+def getWeather(): # 날씨정보를가져와문자열로반환하는함수/ Function to fetch weather and return as string
+    url = f"https://api.openweathermap.org/data/2.5/forecast?q=Seoul&appid={api_key}&units=metric&lang=en&cnt=8" # 서울24시간예보URL / Seoul 24h forecast URL
+
+    with urllib.request.urlopen(url) as r: # API에요청보내기/ Send request to API
+        data = json.loads(r.read()) # 응답을JSON으로변환/ Convert response to JSON
+
+    text = "" # 결과문자열초기화/ Initialize result string
+    for i in range(8): # 8개시간대순회/ Loop through 8 time slots
+        item = data['list'][i] # i번째날씨데이터가져오기/ Get i-th weather data
+        hour = str((int(item['dt_txt'][11:13]) + 9) % 24).zfill(2) # 시간추출후KST 변환(2자리유지) / Extract hour and convert to KST (keep 2 digits)
+        temp = item['main']['temp'] # 기온추출/ Extract temperature
+        humi = item['main']['humidity'] # 습도추출/ Extract humidity
+        desc = item['weather'][0]['description'] # 날씨설명추출/ Extract weather description
+        text += f"({hour}h {temp}C {humi}% {desc})\n" # 결과문자열에추가/ Append to result string
+
+    return text # 완성된날씨문자열반환/ Return completed weather string
+
+async def main(): # 비동기메인함수/ Async main function
+    try:
+        while True: # 무한반복/ Infinite loop
+            now = datetime.datetime.now() # 현재시간가져오기/ Get current time
+            hm = now.strftime('%H:%M') # 현재시:분추출(예: "08:30") / Extract current HH:MM (e.g. "08:30")
+
+            is_alert_hour = now.hour in ALERT_HOURS and now.minute == 0 and now.second == 0 # 정각알림조건확인/ Check scheduled hour alert condition
+            is_alert_time = hm in ALERT_TIMES and now.second == 0 # 지정시간알림조건확인/ Check custom time alert condition
+
+            if is_alert_hour or is_alert_time: # 두조건중하나라도해당되면전송/ Send if either condition is met
+                msg = getWeather() # 날씨정보가져오기/ Fetch weather info
+                print(msg) # 터미널에출력/ Print to terminal
+                await bot.send_message(chat_id=telegram_id, text=msg) # 텔레그램으로메시지전송/ Send message to Telegram
+
+            await asyncio.sleep(1) # 1초대기후반복/ Wait 1 second before next check
+
+    except KeyboardInterrupt: # Ctrl+C 입력시정상종료/ Exit gracefully on Ctrl+C
+        pass
+
+asyncio.run(main()) # 비동기메인함수실행/ Run async main function
