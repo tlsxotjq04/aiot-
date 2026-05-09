@@ -1,0 +1,33 @@
+import paho.mqtt.client as mqtt # MQTT 통신모듈불러오기
+import time # 시간관련기능모듈불러오기
+from gpiozero import LED # GPIO 제어모듈에서LED 클래스불러오기
+
+greenLed = LED(16) # 16번핀에연결된초록LED 설정
+blueLed = LED(20) # 20번핀에연결된파란LED 설정
+redLed = LED(21) # 21번핀에연결된빨간LED 설정
+
+def on_message(client, userdata, msg): # 메시지수신시실행되는함수정의
+    print(msg.topic+" "+str(msg.payload))# 수신된토픽과데이터를터미널에출력
+    message = msg.payload.decode() # 수신된바이트데이터를문자열로변환
+    print(message) # 변환된메시지터미널에출력
+    if message == "green_on": # 메시지가"green_on"이면
+        greenLed.on() # 초록LED 켜기
+    elif message == "green_off": # 메시지가"green_off"이면
+        greenLed.off() # 초록LED 끄기
+    elif message == "blue_on": # 메시지가"blue_on"이면
+        blueLed.on() # 파란LED 켜기
+    elif message == "blue_off": # 메시지가"blue_off"이면
+        blueLed.off() # 파란LED 끄기
+    elif message == "red_on": # 메시지가"red_on"이면
+        redLed.on() # 빨간LED 켜기
+    elif message == "red_off": # 메시지가"red_off"이면
+        redLed.off() # 빨간LED 끄기
+
+client = mqtt.Client() # MQTT 클라이언트생성
+client.on_message = on_message # 메시지수신시on_message 함수연결
+
+broker_address="192.168.137.230" # 브로커(라즈베리파이) IP 주소설정
+client.connect(broker_address) # 브로커에연결
+client.subscribe("led",1) # "led" 토픽구독등록(QoS 1)
+
+client.loop_forever() # 메시지수신대기무한루프실행
