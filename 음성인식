@@ -1,0 +1,25 @@
+importrequests # HTTP 요청을보내기위한라이브러리임포트
+importos # 운영체제명령어실행을위한라이브러리임포트
+importtime # 시간지연처리를위한라이브러리임포트
+
+API_KEY="Enter your API key here" # OpenWeatherMap API 키설정
+url=f"https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid={API_KEY}&units=metric" # 서울날씨요청URL (단위: 섭씨)
+
+defspeak(option, msg): # 텍스트를음성으로출력하는함수정의
+    os.system("espeak {}'{}'".format(option, msg)) # espeak 명령어로option 설정과함께msg를음성출력
+
+try:
+    while1: # 키보드인터럽트(Ctrl+C)가발생할때까지무한반복
+        response=requests.get(url)  # 날씨API에GET 요청을보내응답수신
+        data=response.json()     # 응답데이터를JSON 형식으로파싱
+        temp=data["main"]["temp"]  # JSON 데이터에서현재기온(섭씨) 추출
+        humi=data["main"]["humidity"] # JSON 데이터에서현재습도(%) 추출
+
+        msg='  기온은'+str(int(temp)) +' 도습도는'+str(humi) +'퍼센트입니다.' # 기온과습도를포함한안내문자열생성
+        print(msg) # 생성된날씨메시지콘솔에출력
+        option='-s 180 -p 50 -a 200 -v ko+f5' # espeak 옵션설정(속도180, 음높이50, 음량200, 한국어여성음성)
+        speak(option, msg)  # 설정된옵션과메시지로음성출력함수호출
+        time.sleep(10.0)   # 10초대기후다음날씨정보요청
+
+exceptKeyboardInterrupt: # Ctrl+C 입력시프로그램정상종료
+    pass # 아무처리없이루프탈출
